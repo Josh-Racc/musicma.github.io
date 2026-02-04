@@ -1,134 +1,112 @@
-
 document.addEventListener("DOMContentLoaded", function (event) {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const globalGain = audioCtx.createGain()
     globalGain.connect(audioCtx.destination);
 
+    // RESTORED: Your full frequency map
     const keyboardFrequencyMap = {
-        '90': { freq: 261.62, label: 'Z', type: 'white' },
-        '83': { freq: 277.18, label: 'S', type: 'black' },  
-        '88': { freq: 293.66, label: 'X', type: 'white' },  
-        '68': { freq: 311.13, label: 'D', type: 'black' }, 
-        '67': { freq: 329.63, label: 'C', type: 'white' },  
-        '86': { freq: 349.23, label: 'V', type: 'white' }, 
-        '71': { freq: 369.99, label: 'G', type: 'black' },  
-        '66': { freq: 391.99, label: 'B', type: 'white' },  
-        '72': { freq: 415.30, label: 'H', type: 'black' },  
-        '78': { freq: 440.00, label: 'N', type: 'white' },  
-        '74': { freq: 466.16, label: 'J', type: 'black' }, 
-        '77': { freq: 493.88, label: 'M', type: 'white' }, 
-        '81': { freq: 523.25, label: 'Q', type: 'white' },  
-        '50': { freq: 554.37, label: '2', type: 'black' },
-        '87': { freq: 587.33, label: 'W', type: 'white' },
-        '51': { freq: 622.25, label: '3', type: 'black' },
-        '69': { freq: 659.25, label: 'E', type: 'white' },
-        '82': { freq: 698.46, label: 'R', type: 'white' },
-        '53': { freq: 739.99, label: '5', type: 'black' },
-        '84': { freq: 783.99, label: 'T', type: 'white' },
-        '54': { freq: 830.61, label: '6', type: 'black' },
-        '89': { freq: 880.00, label: 'Y', type: 'white' },
-        '55': { freq: 932.33, label: '7', type: 'black' },
-        '85': { freq: 987.77, label: 'U', type: 'white' },
+        '90': { freq: 261.625, label: 'Z', type: 'white' }, // C
+        '83': { freq: 277.182, label: 'S', type: 'black' }, // C#
+        '88': { freq: 293.664, label: 'X', type: 'white' }, // D
+        '68': { freq: 311.126, label: 'D', type: 'black' }, // D#
+        '67': { freq: 329.627, label: 'C', type: 'white' }, // E
+        '86': { freq: 349.228, label: 'V', type: 'white' }, // F
+        '71': { freq: 369.994, label: 'G', type: 'black' }, // F#
+        '66': { freq: 391.995, label: 'B', type: 'white' }, // G
+        '72': { freq: 415.304, label: 'H', type: 'black' }, // G#
+        '78': { freq: 440.000, label: 'N', type: 'white' }, // A
+        '74': { freq: 466.163, label: 'J', type: 'black' }, // A#
+        '77': { freq: 493.883, label: 'M', type: 'white' }, // B
+        '81': { freq: 523.251, label: 'Q', type: 'white' }, // C
+        '50': { freq: 554.365, label: '2', type: 'black' }, // C#
+        '87': { freq: 587.329, label: 'W', type: 'white' }, // D
+        '51': { freq: 622.253, label: '3', type: 'black' }, // D#
+        '69': { freq: 659.255, label: 'E', type: 'white' }, // E
+        '82': { freq: 698.456, label: 'R', type: 'white' }, // F
+        '53': { freq: 739.988, label: '5', type: 'black' }, // F#
+        '84': { freq: 783.990, label: 'T', type: 'white' }, // G
+        '54': { freq: 830.609, label: '6', type: 'black' }, // G#
+        '89': { freq: 880.000, label: 'Y', type: 'white' }, // A
+        '55': { freq: 932.327, label: '7', type: 'black' }, // A#
+        '85': { freq: 987.766, label: 'U', type: 'white' }, // B
     };
 
     let inputBuffer = "";
     const meme = "ynxnvvc";
-
-    window.addEventListener('keydown', keyDown, false);
-    window.addEventListener('keyup', keyUp, false);
-
-    let activeOscillators = {}; 
+    let activeOscillators = {};
     let selectedWaveform = 'sine';
 
+    // Build the visual keyboard
     const keyboardContainer = document.getElementById('keyboard');
+    Object.keys(keyboardFrequencyMap).forEach(code => {
+        const info = keyboardFrequencyMap[code];
+        const div = document.createElement('div');
+        div.className = `key ${info.type}`;
+        div.id = `key-${code}`;
+        div.innerHTML = `<span>${info.label}</span>`;
+        div.addEventListener('mousedown', () => keyDown({ which: code, key: info.label }));
+        div.addEventListener('mouseup', () => keyUp({ which: code }));
+        div.addEventListener('mouseleave', () => keyUp({ which: code }));
+        keyboardContainer.appendChild(div);
+    });
 
-    function renderKeyboard() {
-        Object.keys(keyboardFrequencyMap).forEach(keyCode => {
-            const info = keyboardFrequencyMap[keyCode];
-            const keyDiv = document.createElement('div');
-            keyDiv.className = `key ${info.type}`;
-            keyDiv.id = `key-${keyCode}`;
-            keyDiv.innerText = info.label;
-
-            keyDiv.addEventListener('mousedown', () => keyDown({ which: keyCode, key: info.label }));
-            keyDiv.addEventListener('mouseup', () => keyUp({ which: keyCode }));
-            keyDiv.addEventListener('mouseleave', () => keyUp({ which: keyCode }));
-
-            keyboardContainer.appendChild(keyDiv);
-        });
-    }
-    renderKeyboard();
-
-    window.addEventListener('keydown', keyDown, false);
-    window.addEventListener('keyup', keyUp, false);
-
+    window.addEventListener('keydown', (e) => { if (!e.repeat) keyDown(e); });
+    window.addEventListener('keyup', keyUp);
 
     function keyDown(event) {
-        if (audioCtx.state === 'suspended') { audioCtx.resume(); }
-
-        const key = (event.which || event.detail).toString();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const key = (event.which || event.keyCode).toString();
 
         if (keyboardFrequencyMap[key] && !activeOscillators[key]) {
             const el = document.getElementById(`key-${key}`);
             if (el) el.classList.add('active');
-
             playNote(key);
         }
 
-        
+        // Meme logic
         if (event.key) {
-            const char = event.key.toLowerCase();
-            inputBuffer += char;
-            if (inputBuffer.length > meme.length) { inputBuffer = inputBuffer.slice(-meme.length) }
-            if (inputBuffer === meme) {
-                window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-            }
+            inputBuffer = (inputBuffer + event.key.toLowerCase()).slice(-meme.length);
+            if (inputBuffer === meme) window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
         }
-
-        updateGain();
     }
 
     function keyUp(event) {
-        const key = (event.which || event.detail).toString();
-        if (keyboardFrequencyMap[key] && activeOscillators[key]) {
+        const key = (event.which || event.keyCode).toString();
+        if (activeOscillators[key]) {
             const el = document.getElementById(`key-${key}`);
             if (el) el.classList.remove('active');
 
-            const note = activeOscillators[key];
-            note.gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.03);
-            note.oscillator.stop(audioCtx.currentTime + 0.1);
-            delete activeOscillators[key];
-            updateGain();
-        }
-    }
+            const node = activeOscillators[key];
+            const now = audioCtx.currentTime;
 
-    function updateGain() {
-        const activeCount = Object.keys(activeOscillators).length;
-        if (activeCount > 0) {
-            globalGain.gain.setTargetAtTime(1 / activeCount, audioCtx.currentTime, 0.02);
-        } else {
-            globalGain.gain.setTargetAtTime(1, audioCtx.currentTime, 0.02);
+            // RULE 3: Stop at 0.0001 (not 0) using Exponential for no pops
+            node.gainNode.gain.cancelScheduledValues(now);
+            node.gainNode.gain.setValueAtTime(node.gainNode.gain.value, now);
+            node.gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+            node.oscillator.stop(now + 0.06);
+
+            delete activeOscillators[key];
         }
     }
 
     function playNote(key) {
+        const osc = audioCtx.createOscillator();
         const noteGain = audioCtx.createGain();
         const now = audioCtx.currentTime;
-        const osc = audioCtx.createOscillator();
 
-        osc.frequency.setValueAtTime(keyboardFrequencyMap[key].freq, now);
         osc.type = selectedWaveform;
+        osc.frequency.setValueAtTime(keyboardFrequencyMap[key].freq, now);
+
+        // RULE 1 & 3: Start at a non-zero near-zero, ramp to 0.3 (safe amplitude)
+        noteGain.gain.setValueAtTime(0.0001, now);
+        noteGain.gain.exponentialRampToValueAtTime(0.3, now + 0.02);
 
         osc.connect(noteGain);
         noteGain.connect(globalGain);
+        osc.start();
 
-        noteGain.gain.setValueAtTime(0, now);
-        noteGain.gain.linearRampToValueAtTime(1, now + 0.02);
-
-        osc.start(now);
         activeOscillators[key] = { oscillator: osc, gainNode: noteGain };
     }
 
-    const selector = document.getElementById('waveform-selector');
-    selector.addEventListener('change', () => { selectedWaveform = selector.value; });
+    document.getElementById('waveform-selector').onchange = (e) => selectedWaveform = e.target.value;
 });
