@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>My JS Synth</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .synth-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .side-img {
+            width: 150px;
+            height: auto;
+        }
+
+        .flipped {
+            transform: scaleX(-1);
+        }
+
+        .keyboard {
+            display: flex;
+            position: relative;
+            min-height: 150px;
+        }
+
+        .key {
+            border: 1px solid #000;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+            cursor: pointer;
+            user-select: none;
+            font-weight: bold;
+            transition: background 0.05s;
+        }
+
+        .white {
+            width: 40px;
+            height: 150px;
+            background: white;
+            z-index: 1;
+        }
+
+        .black {
+            width: 30px;
+            height: 95px;
+            background: black;
+            color: white;
+            margin-left: -15px;
+            margin-right: -15px;
+            z-index: 2;
+            font-size: 10px;
+        }
+
+        .key.active {
+            background: #ffcc00 !important;
+        }
+    </style>
+</head>
+<body>
+    <h1>MUSIC TIME</h1>
+    <p>Click the page once first to enable audio.</p>
+    <p>For fun play "YNXNVVC".</p>
+    <p>Use Keyboard Keys</p>
+
+    <div class="synth-container">
+        <img src="https://static.wikia.nocookie.net/freddy-fazbears-pizzeria-simulator/images/7/7e/MusicMan.png" alt="music man" class="side-img">
+
+        <div id="keyboard" class="keyboard"></div>
+
+        <img src="https://static.wikia.nocookie.net/freddy-fazbears-pizzeria-simulator/images/7/7e/MusicMan.png" alt="music man" class="side-img flipped">
+    </div>
+
+    <select id="waveform-selector">
+        <option value="sawtooth"> Gritty Sawtooth </option>
+        <option value="sine"> Sine </option>
+    </select>
+
+    <script src="Script1.js"></script>
+</body>
+</html>
